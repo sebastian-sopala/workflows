@@ -28,3 +28,22 @@ jobs:
       run: |
         export PYTHONPATH="${PYTHONPATH}:$(pwd)"
         pytest -v tests/
+
+    - name: Install SonarQube scanner
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+        unzip sonar-scanner-cli-4.6.2.2472-linux.zip
+        sudo ln -s $GITHUB_WORKSPACE/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner
+
+    - name: Run SonarQube analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKKEN }}
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey='sebastian-sopala_workflows' \
+          -Dsonar.organization='sebastian-sopala' \
+          -Dsonar.sources='app/' \
+          -Dsonar.tests='tests/' \
+          -Dsonar.python.coverage.reportPaths=coverage.xml \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=$SONAR_CLOUD_TOKKEN
